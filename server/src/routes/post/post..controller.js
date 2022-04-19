@@ -104,6 +104,29 @@ async function httpLikeDislikePost(req ,res ,next){
   })
 }
 
+async function httpGetMyPostsAndMyfollowingsPost(req ,res ,next){
+  const user = req.user;
+  let allPosts =[];
+  const myPosts= await GetAllPost({user : user._id });
+  
+  const followingsPost = await Promise.all(
+    // if i want to use any loop i should use promise.all
+    // why use promise all coz i want to get an array that has all post and usee map for it 
+    //so i want to use map inside promise all so i can make it asyn and after that user await
+    user.followings.map((friendId) =>{
+      //iterate over each freind and get his posts
+     return GetAllPost({user :friendId })
+    })
+  )
+  allPosts= [...myPosts , ...followingsPost]
+  //myPosts.concat(...followingsPost)
+ 
+  return res.status(200).json({
+    status:'success',
+    data:allPosts,
+  })
+}
+
 module.exports = {
   httpCreatePost,
   httpDeletePost,
@@ -111,4 +134,5 @@ module.exports = {
   httpGetSinglePost,
   httpUpdatePost,
   httpLikeDislikePost,
+  httpGetMyPostsAndMyfollowingsPost,
 }

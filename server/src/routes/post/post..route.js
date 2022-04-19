@@ -12,7 +12,8 @@ const {
   httpGetAllPost,
   httpGetSinglePost,
   httpUpdatePost,
-  httpLikeDislikePost
+  httpLikeDislikePost,
+  httpGetMyPostsAndMyfollowingsPost
 } = require('./post..controller');
 
 
@@ -23,6 +24,7 @@ postRoute.post('/' , catchAsync(httpCreatePost));
 postRoute.delete('/delete/:id' , catchAsync(httpDeletePost));
 postRoute.patch('/update/:id',catchAsync(httpUpdatePost));
 postRoute.patch('/like/:id', catchAsync(httpLikeDislikePost));
+postRoute.get('/home', catchAsync(httpGetMyPostsAndMyfollowingsPost))
 //postRoute.use(authorized('admin'));
 postRoute.get('/' , catchAsync(httpGetAllPost ));
 
