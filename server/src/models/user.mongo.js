@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const userScheam = new mongoose.Schema({
 
   name: {
+    //unique:true,
     type: String,
     required:[true, 'Please provide your name'],
     minlength:[3, 'Name must be more or equal 3 chars'],
@@ -34,6 +35,33 @@ const userScheam = new mongoose.Schema({
       message :'passwords are not the same'
     }
   },
+
+  followers:{
+    type: Array,
+    default:[]
+  },
+  followings:{
+    type: Array,
+    default:[]
+  },
+  city:{
+    type:String,
+    max:30,
+  },
+  desc: {
+    type:String,
+    max: 50,
+  }
+  ,
+  profilePic: {
+    type: String,
+    default:"",
+  },
+  coverPic: {
+    type: String,
+    default:"",
+  }
+  ,
   role: {
     type: String,
     enum:['admin','user'],
@@ -48,8 +76,6 @@ const userScheam = new mongoose.Schema({
        message:'Gender must be male, female'
      }
    },
-   likedSong: [String],
-   playlist:[String],
  
   passwordChangedAt : Date,
   passwordResetToken : String ,
@@ -58,9 +84,9 @@ const userScheam = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  createdAt:Date
-}, {
   
+}, {
+   timestamps:true,
    toJSON: {virtuals : true},
    toObject:{virtuals : true}
 })

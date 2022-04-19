@@ -9,7 +9,7 @@ const {
 } = require('../../models/user.models');
 const sendCookieVieRespond = require('../../authController/cookie');
 const appError = require('../../handelErros/class.handel.errors');
- 
+const {checkPermessions} = require('../../services/query')
 const {filterData} = require('../../services/query')
  
 async function httpMyProfile (req ,res ,next) {
@@ -93,8 +93,24 @@ async function httpDeleteUser (req ,res ,next) {
     status:'success',
     message:'You deleted your account'
   })
-
 }
+
+
+async function httpDeleteUserbyAdmin (req ,res ,next) {
+  const {userid} = req.params;
+  const user = await FindUser({
+    id: userid
+  })
+  if(!user) {
+    return next (new appError('No user was found'))
+  }
+  await DeleteUser(userid);
+  return res.status(200).json({
+    status:'success',
+    message:'this account has been deleted'
+  })
+}
+
 
 function httpLogout(req , res ) {
   res.cookie('token' , 'Logout', {
@@ -118,6 +134,58 @@ async function httpGetUserStats(req ,res ,next) {
   })
 }
 
+async function httpFollowUser (req ,res ,next) {
+  const {userid} = req.params;
+  if(req.user._id.toString() === userid){
+    return next(new appError('You can not follow yourself'))
+  }
+  const FollowThisUser = await FindUser({_id : userid});
+  if(!httpFollowUser) {
+    return next(new appError('This user is not found'))
+  }
+  if(FollowThisUser.followers.includes(req.user._id)) {
+    return next(new appError('You already follow this user'))
+  }
+  await req.user.updateOne({$push: {followings: FollowThisUser._id}});
+  await FollowThisUser.updateOne({$push: {followers: req.user._id}});
+  return res.status(200).json({
+    status:'success',
+    message:'User has been followed'
+  })
+
+}
+
+
+
+async function httpGetUserStats(req ,res ,next) {
+
+  const users = await GetUserStats();
+  return res.status(200).json({
+    status:'success',
+    data:users
+  })
+}
+
+async function httpUnFollowUser (req ,res ,next) {
+  const {userid} = req.params;
+  if(req.user._id.toString() === userid){
+    return next(new appError('You can not unfollow yourself'))
+  }
+  const unFollowThisUser = await FindUser({_id : userid});
+  if(!unFollowThisUser) {
+    return next(new appError('This user is not found'))
+  }
+  if(!unFollowThisUser.followers.includes(req.user._id)) {
+    return next(new appError('You already unfollowed this user'))
+  }
+  await req.user.updateOne({$pull: {followings: unFollowThisUser._id}});
+  await unFollowThisUser.updateOne({$pull: {followers: req.user._id}});
+  return res.status(200).json({
+    status:'success',
+    message:'User has been unfollowed'
+  })
+
+}
 
 module.exports = {
   httpMyProfile,
@@ -129,5 +197,7 @@ module.exports = {
   httpUpdateUser,
   httpLoginUser,
   httpGetUserStats,
- 
+  httpDeleteUserbyAdmin,
+  httpFollowUser,
+  httpUnFollowUser
 }
