@@ -16,6 +16,10 @@ const commentSchema = new mongoose.Schema({
     type:String,
     required:true,
     max: 200,
+  },
+  numberOfLikes: {
+    type:String,
+    default:0
   }
 }, {
  toJSON:{virtuals: true},
