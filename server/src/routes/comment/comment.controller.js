@@ -9,7 +9,7 @@ const {
   UpdateComment,
   DeleteComment,
 } = require('../../models/comment.models');
-
+const {GetSinglePost} = require('../../models/post.models')
 
 async function httpGetAllComment (req ,res ,next) {
   const comments = await GetAllComment();
@@ -40,6 +40,10 @@ async function httpCreateComment (req ,res ,next) {
   //get the post id and user id
   const userId = req.user._id;
   const { postId } = req.params
+  const post = await GetSinglePost({_id : postId});
+  if(!post){
+    return next(new appError('Post is not found'))
+  }
   const comment = await CreateComment( req ,userId , postId);
   return res.status(201).json({
     status:'success',

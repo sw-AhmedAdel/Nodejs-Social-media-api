@@ -28,7 +28,7 @@ async function UpdateComment(editComment, id) {
 }
 
 async function DeleteComment(id) {
-  await Comment.findByIdAndDelete(id);
+  await Comment.findByIdAndDelete (id);
 }
 
 
