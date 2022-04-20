@@ -11,6 +11,8 @@ const sendCookieVieRespond = require('../../authController/cookie');
 const appError = require('../../handelErros/class.handel.errors');
 const {checkPermessions} = require('../../services/query')
 const {filterData} = require('../../services/query')
+const {checkBlock} = require('../../models/block.models');
+const app = require('../../app');
  
 async function httpMyProfile (req ,res ,next) {
   return res.status(200).json({
@@ -65,6 +67,10 @@ async function httpGetSingleUser(req ,res ,next) {
   if(!user) {
     return next(new appError('User is not found', 404))
   }
+
+ if( await checkBlock(req.user._id , userid )){
+  return next(new appError('You can not reach this page'))
+ }
   return res.status(200).json({
     status:'success',
     data : user
@@ -129,9 +135,15 @@ function httpLogout(req , res ) {
 
 async function httpFollowUser (req ,res ,next) {
   const {userid} = req.params;
+
   if(req.user._id.toString() === userid){
     return next(new appError('You can not follow yourself'))
   }
+ 
+  if( await checkBlock(req.user._id , userid )){
+    return next(new appError('You can not reach this page'))
+   }
+
   const FollowThisUser = await FindUser({_id : userid});
   if(!httpFollowUser) {
     return next(new appError('This user is not found'))
@@ -154,6 +166,11 @@ async function httpUnFollowUser (req ,res ,next) {
   if(req.user._id.toString() === userid){
     return next(new appError('You can not unfollow yourself'))
   }
+
+  if( await checkBlock(req.user._id , userid )){
+   return next(new appError('You can not reach this page'))
+   }
+
   const unFollowThisUser = await FindUser({_id : userid});
   if(!unFollowThisUser) {
     return next(new appError('This user is not found'))
