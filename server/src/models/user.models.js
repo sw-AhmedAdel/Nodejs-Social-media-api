@@ -11,8 +11,8 @@ async function findByrCedenitals( email , password) {
   return await User.findByrCedenitals(email , password);
 }
 
-async function GetALlUsers() {
-  return await User.find();
+async function GetALlUsers(filter) {
+  return await User.find(filter);
 }
 
 async function FindUser (filter) {
@@ -36,37 +36,7 @@ async function DeleteUser (id) {
   
 }
 
-async function GetUserStats () {
-  const users = await User.aggregate([
 
-    {
-    
-      $unwind :'$createdAt'
-      }
-      ,
-      {
-        $group: {
-          _id: {$month: '$createdAt'},//means get me each tour in the same month and put it in group
-          numOfUsers:{$sum: 1}, // count each tour in group
-        }
-      }
-      ,
-      {
-        $addFields:{
-          month:'$_id'
-        }
-      }
-      ,
-      {
-        $project:{
-          _id:0
-        }
-      }
-    
-  
-  ])
-  return users;
-}
 
 module.exports = {
   CreateUser,
@@ -75,6 +45,5 @@ module.exports = {
   UpdateUser,
   DeleteUser,
   findByrCedenitals,
-  GetUserStats
 
 }

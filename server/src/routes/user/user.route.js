@@ -13,11 +13,12 @@ const {
   httpGetSingleUser,
   httpUpdateUser,
   httpLoginUser,
-  httpGetUserStats,
   httpMyProfile,
   httpDeleteUserbyAdmin,
   httpFollowUser,
-  httpUnFollowUser
+  httpUnFollowUser,
+  httpGetMyFollowers,
+  httpGetMyFollowings
 } = require('./user.controller');
 
 const {
@@ -42,11 +43,11 @@ userRoute.get('/logout' ,catchAsync( httpLogout));
 
 userRoute.patch('/follow/:userid' ,  catchAsync(httpFollowUser));
 userRoute.patch('/unfollow/:userid' ,  catchAsync(httpUnFollowUser));
-
+userRoute.get('/myfollowers' ,  catchAsync(httpGetMyFollowers));
+userRoute.get('/myfollowings' ,  catchAsync(httpGetMyFollowings));
 userRoute.get('/', catchAsync( httpGetALlUsers));
 userRoute.use(authorized('admin'))
 
-userRoute.get('/stats/:year', catchAsync(httpGetUserStats));
 userRoute.delete('/delete/user/:userid', catchAsync(httpDeleteUserbyAdmin) )
 module.exports = userRoute;
 

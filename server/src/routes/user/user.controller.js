@@ -5,7 +5,7 @@ const {
   DeleteUser,
   GetALlUsers,
   findByrCedenitals,
-  GetUserStats
+  
 } = require('../../models/user.models');
 const sendCookieVieRespond = require('../../authController/cookie');
 const appError = require('../../handelErros/class.handel.errors');
@@ -125,14 +125,7 @@ function httpLogout(req , res ) {
    } 
 }
 
-async function httpGetUserStats(req ,res ,next) {
-
-  const users = await GetUserStats();
-  return res.status(200).json({
-    status:'success',
-    data:users
-  })
-}
+ 
 
 async function httpFollowUser (req ,res ,next) {
   const {userid} = req.params;
@@ -156,16 +149,6 @@ async function httpFollowUser (req ,res ,next) {
 }
 
 
-
-async function httpGetUserStats(req ,res ,next) {
-
-  const users = await GetUserStats();
-  return res.status(200).json({
-    status:'success',
-    data:users
-  })
-}
-
 async function httpUnFollowUser (req ,res ,next) {
   const {userid} = req.params;
   if(req.user._id.toString() === userid){
@@ -184,8 +167,28 @@ async function httpUnFollowUser (req ,res ,next) {
     status:'success',
     message:'User has been unfollowed'
   })
-
 }
+
+async function httpGetMyFollowers (req ,res ,next) {
+ 
+  const followers = await GetALlUsers({_id: req.user.followers})
+  return res.status(200).json({
+    status:'success',
+    results:followers.length,
+    data:followers
+  })
+}
+async function httpGetMyFollowings (req ,res ,next) {
+  
+
+  const followings = await GetALlUsers({_id: req.user.followings})
+  return res.status(200).json({
+    status:'success',
+    results:followings.length,
+    data:followings
+  })
+}
+
 
 module.exports = {
   httpMyProfile,
@@ -196,8 +199,9 @@ module.exports = {
   httpGetSingleUser,
   httpUpdateUser,
   httpLoginUser,
-  httpGetUserStats,
   httpDeleteUserbyAdmin,
   httpFollowUser,
-  httpUnFollowUser
+  httpUnFollowUser,
+  httpGetMyFollowers,
+  httpGetMyFollowings
 }
