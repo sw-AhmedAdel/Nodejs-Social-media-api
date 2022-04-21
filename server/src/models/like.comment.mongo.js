@@ -43,6 +43,7 @@ likeCommentSchema.post('save', async function(){
 
 likeCommentSchema.post(/^findOneAndDelete/ ,async function(like) {
   await like.constructor.calcNumberOfLikesOnComment(like.comment)
+ 
 })
 
 const LikeComment = monggose.model('LikeComment', likeCommentSchema );

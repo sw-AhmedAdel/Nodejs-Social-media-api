@@ -23,10 +23,14 @@ async function DeleteMyLike(id){
   await LikeComment.findByIdAndDelete(id)
 }
 
+async function DeleteManyLikes(filter){
+  await LikeComment.deleteMany(filter)
+}
 
 module.exports= {
   CreateLike,
   GetAllLikes,
   FindMyLike,
-  DeleteMyLike
+  DeleteMyLike,
+  DeleteManyLikes
 }

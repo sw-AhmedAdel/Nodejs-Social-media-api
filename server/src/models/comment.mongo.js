@@ -54,9 +54,20 @@ commentSchema.post('save' ,async function(){
   
 })
 
+commentSchema.post('remove' ,async function(comment) {
+  await comment.constructor.calcNumberOfCommentsOnPost(comment.post)
+  await this.model('LikeComment').deleteMany({comment :comment._id })
+})
+
+/* can not use findOneAndDelete when i want to delete many likes 
+when i want to delete just one like it is ok to use aggregate to get thr reflection on comment
+but if i want to delete many likes just use remove and here delete all of them
 commentSchema.post(/^findOneAndDelete/ ,async function(comment) {
   await comment.constructor.calcNumberOfCommentsOnPost(comment.post)
-})
+  await this.model('LikeComment').deleteMany({comment :comment._id })
+})*/
+
+
 
 
 const Comment = mongoose.model('Comment', commentSchema);

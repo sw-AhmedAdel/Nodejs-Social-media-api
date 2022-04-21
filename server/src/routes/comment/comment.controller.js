@@ -89,7 +89,8 @@ async function httpDeleteComment (req ,res ,next) {
     return next(new appError('You are not authorized to do this action',400))
   }
 
-  await DeleteComment(id);
+  //await DeleteComment(id);
+  await Comment.remove()
   return res.status(200).json({
     status:'success',
   })

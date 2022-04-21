@@ -31,6 +31,9 @@ async function DeleteComment(id) {
   await Comment.findByIdAndDelete (id);
 }
 
+async function DeleteManycomments(filter){
+  await Comment.deleteMany(filter)
+}
 
 module.exports = {
   CreateComment,
@@ -38,6 +41,7 @@ module.exports = {
   GetAllComment,
   UpdateComment,
   DeleteComment,
+  DeleteManycomments
 
 }
 

@@ -9,6 +9,9 @@ const {
   FindUser,
 } =require('../../models/post.models');
 const {checkPermessions} = require('../../services/query')
+const {GetAllComment} = require('../../models/comment.models');
+const {DeleteManyLikes}= require('../../models/like.comment.models');
+const {DeleteManycomments} = require('../../models/comment.models');
 
 async function httpGetAllPost (req ,res ,next) {
   const posts = await GetAllPost();
@@ -76,6 +79,15 @@ async function httpDeletePost (req ,res ,next) {
   if(!checkPermessions(req.user , post.user)){
     return next(new appError('You are not authorized to do this action',400))
   }
+
+  const comments = await GetAllComment({post : post._id});
+  await Promise.all(
+    comments.map( async (comment) => {
+     await DeleteManyLikes({comment: comment._id})
+    })
+  )
+
+  await DeleteManycomments({post : post._id })
   await post.remove();
   return res.status(200).json({
     status:'success',
