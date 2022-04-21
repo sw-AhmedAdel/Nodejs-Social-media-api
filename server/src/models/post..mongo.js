@@ -30,12 +30,23 @@ const postSchema = new mongoose.Schema({
       type:Number,
       default:0
     },
+    display:{
+      type:String,
+      enum:['onlyme','public','followers'],
+      default:'public'
+    }
  
 }, {
   timestamps:true,
   toJSON:{virtuals: true},
   toObject:{virtuals: true}
 })
+/*
+postSchema.pre(/^find/ , function( next) {
+   this.find( { display: { $ne :'onlyme'} } )
+   
+   next();
+ })*/
 
 const Post = mongoose.model('Post', postSchema);
 module.exports = Post;

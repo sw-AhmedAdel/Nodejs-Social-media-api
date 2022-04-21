@@ -97,6 +97,22 @@ async function httpLoginUser (req ,res ,next) {
   })
 }
 
+async function httpSearchUSerByName(req ,res ,next) {
+  const {name} = req.query;
+  const user = await FindUser({name:name})
+  if(!user) {
+    return next(new appError('User is not exits',400));
+  }
+  if(await checkBlock(user._id , req.user._id )){
+    return next(new appError('You can not reach this page',400))
+   }
+   return res.status(200).json({
+     status:'success',
+     data:user
+   })
+}
+
+// this is for testing
 async function httpGetALlUsers(req ,res ,next) {
   const users = await GetALlUsers();
   return res.status(200).json({
@@ -256,6 +272,7 @@ async function httpGetMyFollowings (req ,res ,next) {
 
 module.exports = {
   httpMyProfile,
+  httpSearchUSerByName,
   httpCreateUser,
   httpDeleteUser,
   httpGetALlUsers,

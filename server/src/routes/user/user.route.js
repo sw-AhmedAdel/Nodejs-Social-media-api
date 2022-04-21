@@ -9,6 +9,7 @@ const {
   httpCreateUser,
   httpDeleteUser,
   httpGetALlUsers,
+  httpSearchUSerByName,
   httpLogout,
   httpGetSingleUser,
   httpUpdateUser,
@@ -36,6 +37,7 @@ userRoute.post('/forgotpassword' ,  catchAsync(httpForgotPassword));
 userRoute.patch('/resetpassword/:token' , catchAsync(httpResetPassword));
 
 userRoute.use(catchAsync(authenticate))
+userRoute.get('/getuser', catchAsync(httpSearchUSerByName))
 userRoute.get('/me' , authorized('user') , catchAsync(httpMyProfile));
 userRoute.get('/get/user/:userid' , authorized('user') ,catchAsync( httpGetSingleUser));
 userRoute.patch('/updateme' ,authorized('user') , uploadUsersImages, catchAsync(resizeUsersImages) ,catchAsync( httpUpdateUser));

@@ -14,7 +14,7 @@ async function GetSinglePost(filter) {
   return await Post.findOne(filter);
 }
 
-async function FindUser(filter){
+async function FindOnwerPosts(filter){
   return await GetSinglePost(filter)
 }
 
@@ -39,6 +39,6 @@ module.exports = {
   GetAllPost,
   UpdatePost,
   DeletePost,
-  FindUser,
+  FindOnwerPosts,
 }
 

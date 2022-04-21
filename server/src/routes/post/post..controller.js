@@ -6,20 +6,45 @@ const {
   GetAllPost,
   UpdatePost,
   DeletePost,
-  FindUser,
+  FindOnwerPosts,
 } =require('../../models/post.models');
 const {checkPermessions} = require('../../services/query')
 const {GetAllComment} = require('../../models/comment.models');
 const {DeleteManyLikes}= require('../../models/like.comment.models');
 const {DeleteManycomments} = require('../../models/comment.models');
 const {checkBlock} =require('../../models/block.models')
-
+const {FindUser} = require('../../models/user.models');
 
 async function httpGetAllPost (req ,res ,next) {
-  const posts = await GetAllPost();
+  const posts = await GetAllPost() //({display: { $ne :'onlyme'} });
   return res.status(200).json({
     status:'success',
     resulta:posts.length,
+    data: posts
+  })
+}
+
+async function httpGetUserPosts(req ,res ,next) {
+  const {userId} = req.params;
+  const user = await FindUser({_id: userId});
+  if(!user) {
+    return next(new appError('User is not found', 400));
+  }
+  if(await checkBlock(user._id , req.user._id)){
+    return next(new appError('You can not reach this page',400))
+  }
+
+  let posts ;
+  if(user.followers.includes(req.user._id)){
+    //if this user one of the followers he can see all posts excepts onlyme
+    posts = await GetAllPost({user: userId , display: { $ne :'onlyme'} })
+  } 
+  else {
+    posts = await GetAllPost({user: userId , display: { $nin :['followers','onlyme']}  } )
+  }
+    return res.status(200).json({
+    status:'success',
+    results:posts.length,
     data: posts
   })
 }
@@ -64,7 +89,7 @@ async function httpUpdatePost (req ,res ,next) {
   if(!post) {
     return next(new appError ('post is not extis',400)); 
   } 
-  const user = await FindUser({
+  const user = await FindOnwerPosts({
     _id : id,
     user: req.user._id
   })
@@ -162,15 +187,33 @@ async function httpGetMyPosts (req ,res ,next) {
 }
 
 async function httpSharePost (req ,res ,next) {
+  //when i sahre the post i can take the display from postman like onlyme or public or followers
+  //but i made it as a defualt 
   const {postId} = req.params;
   let post = await GetSinglePost({_id :postId });
   if(!post){
     return next(new appError('Post is not found',400))
   }
-
+  
   if( await checkBlock(post.user , req.user._id )){
     return next(new appError('You can not reach this page',400))
    }
+
+   //this code below just for testing coz in realworld when i get this user's posts i did the check above
+   if(post.display==='onlyme') {
+    return next(new appError('You can share this post',400))
+   }
+   if(post.display ==='followers'){
+     const user = await FindUser({_id : post.user});
+     if(!user) {
+      return next(new appError('User is not found',400))
+     }
+     
+    if(!user.followers.includes(req.user._id)){
+      return next(new appError('You must follow this user to share the post',400))
+    }
+   }
+
    const newPost = {
     isShared: post._id,
     sharedFrom:post.user,
@@ -189,6 +232,7 @@ async function httpSharePost (req ,res ,next) {
 
 module.exports = {
   httpCreatePost,
+  httpGetUserPosts,
   httpDeletePost,
   httpGetAllPost,
   httpGetSinglePost,
