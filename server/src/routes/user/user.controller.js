@@ -9,10 +9,56 @@ const {
 } = require('../../models/user.models');
 const sendCookieVieRespond = require('../../authController/cookie');
 const appError = require('../../handelErros/class.handel.errors');
-const {checkPermessions} = require('../../services/query')
 const {filterData} = require('../../services/query')
 const {checkBlock} = require('../../models/block.models');
-const app = require('../../app');
+
+const multer = require('multer');
+const sharp = require('sharp');
+
+const multerStorage = multer.memoryStorage();
+const multerFilter = (req , file , cb) => {
+  if(file.mimetype.startsWith('image')) 
+  {
+    cb(null , true);
+  }else {
+    cb(new appError ('Not an image! please upload only images', 400 ) , false);
+  }
+}
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+})
+
+const uploadUsersImages = upload.fields([
+  {name: 'profilePic' , maxCount: 1},
+  {name :'coverPic' , maxCount: 1},
+])
+
+
+const resizeUsersImages =async (req , res ,next) => {
+  if(req.files.coverPic) {
+    
+    req.body.imageCover =`user-${req.user._id}-${Date.now()}.jpeg`
+    await sharp(req.files.imageCover[0].buffer)
+    .resize({width:2000 , height:1333})
+    .toFormat('jpeg')
+    .jpeg({quality:90})
+    .toFile(`public/images/users/${req.body.coverPic}`)
+  }
+
+  if( req.files.coverPic) {
+
+   req.body.coverPic =`user-${req.user._id}-${Date.now()}.jpeg`
+    await sharp(req.files.coverPic[0].buffer)
+    .resize({width:300 , height:300})
+    .toFormat('jpeg')
+    .jpeg({quality:90})
+    .toFile(`public/images/users/${req.body.coverPic}`)
+  }
+
+   next();
+}
  
 async function httpMyProfile (req ,res ,next) {
   return res.status(200).json({
@@ -36,7 +82,7 @@ async function httpLoginUser (req ,res ,next) {
   const {email , password} = req.body;
  
   if(!email || !password) {
-    return next(new appError('Email and password must be provided'))
+    return next(new appError('Email and password must be provided',400))
   }
   const user = await findByrCedenitals(email , password);
   if(!user) {
@@ -69,7 +115,7 @@ async function httpGetSingleUser(req ,res ,next) {
   }
 
  if( await checkBlock(req.user._id , userid )){
-  return next(new appError('You can not reach this page'))
+  return next(new appError('You can not reach this page',400))
  }
   return res.status(200).json({
     status:'success',
@@ -93,6 +139,7 @@ async function httpUpdateUser(req ,res ,next) {
 }
 
 async function httpDeleteUser (req ,res ,next) {
+  
   const userid = req.user._id;
   await DeleteUser(userid);
   return res.status(200).json({
@@ -141,15 +188,15 @@ async function httpFollowUser (req ,res ,next) {
   }
  
   if( await checkBlock(req.user._id , userid )){
-    return next(new appError('You can not reach this page'))
+    return next(new appError('You can not reach this page',400))
    }
 
   const FollowThisUser = await FindUser({_id : userid});
   if(!httpFollowUser) {
-    return next(new appError('This user is not found'))
+    return next(new appError('This user is not found',400))
   }
   if(FollowThisUser.followers.includes(req.user._id)) {
-    return next(new appError('You already follow this user'))
+    return next(new appError('You already follow this user',400))
   }
   await req.user.updateOne({$push: {followings: FollowThisUser._id}});
   await FollowThisUser.updateOne({$push: {followers: req.user._id}});
@@ -164,19 +211,19 @@ async function httpFollowUser (req ,res ,next) {
 async function httpUnFollowUser (req ,res ,next) {
   const {userid} = req.params;
   if(req.user._id.toString() === userid){
-    return next(new appError('You can not unfollow yourself'))
+    return next(new appError('You can not unfollow yourself',400))
   }
 
   if( await checkBlock(req.user._id , userid )){
-   return next(new appError('You can not reach this page'))
+   return next(new appError('You can not reach this page',400))
    }
 
   const unFollowThisUser = await FindUser({_id : userid});
   if(!unFollowThisUser) {
-    return next(new appError('This user is not found'))
+    return next(new appError('This user is not found',400))
   }
   if(!unFollowThisUser.followers.includes(req.user._id)) {
-    return next(new appError('You already unfollowed this user'))
+    return next(new appError('You already unfollowed this user',400))
   }
   await req.user.updateOne({$pull: {followings: unFollowThisUser._id}});
   await unFollowThisUser.updateOne({$pull: {followers: req.user._id}});
@@ -220,5 +267,7 @@ module.exports = {
   httpFollowUser,
   httpUnFollowUser,
   httpGetMyFollowers,
-  httpGetMyFollowings
+  httpGetMyFollowings,
+  uploadUsersImages,
+  resizeUsersImages
 }

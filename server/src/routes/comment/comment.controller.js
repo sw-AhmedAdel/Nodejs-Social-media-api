@@ -26,7 +26,7 @@ async function httpGetSingleComment (req ,res ,next) {
     _id: id
   })
   if(!comments) {
-    return next(new appError ('Comment is not extis'));
+    return next(new appError ('Comment is not extis',400));
   }
   return res.status(200).json({
     status:'success',
@@ -42,7 +42,7 @@ async function httpCreateComment (req ,res ,next) {
   const { postId } = req.params
   const post = await GetSinglePost({_id : postId});
   if(!post){
-    return next(new appError('Post is not found'))
+    return next(new appError('Post is not found',400))
   }
   const comment = await CreateComment( req ,userId , postId);
   return res.status(201).json({
@@ -56,7 +56,7 @@ async function httpUpdateComment (req ,res ,next) {
   const {id} = req.params;
   let comment = await GetSingleComment({_id : id});
   if(!comment) {
-    return next(new appError ('Comment is not extis')); 
+    return next(new appError ('Comment is not extis',400)); 
   } 
   const user = await GetSingleComment({
     _id : id,
@@ -81,7 +81,7 @@ async function httpDeleteComment (req ,res ,next) {
   const {id} = req.params;
   const Comment = await GetSingleComment({_id : id});
   if(!Comment) {
-    return next(new appError ('Comment is not extis')); 
+    return next(new appError ('Comment is not extis',400)); 
   }
  
   // check if this user owns this comment to delete it or it is admin

@@ -20,6 +20,7 @@ const {
 
 
 postRoute.use(catchAsync(authenticate));
+postRoute.use(authorized('user'))
 postRoute.get('/get/:id' , catchAsync(httpGetSinglePost));
 
 postRoute.post('/' , catchAsync(httpCreatePost));
@@ -29,7 +30,7 @@ postRoute.patch('/like/:id', catchAsync(httpLikeDislikePost));
 postRoute.get('/home', catchAsync(httpGetMyPostsAndMyfollowingsPost))
 postRoute.get('/myposts', catchAsync(httpGetMyPosts));
 postRoute.post('/share/:postId', catchAsync(httpSharePost) )
-//postRoute.use(authorized('admin'));
-postRoute.get('/' , catchAsync(httpGetAllPost ));
+
+//postRoute.get('/' ,catchAsync(httpGetAllPost ));
 
 module.exports = postRoute;

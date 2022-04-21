@@ -15,10 +15,10 @@ async function httpCreateBlock(req ,res ,next) {
  const {user_id} = req.params;
  const blockedUser = await FindUser({_id : user_id});
  if(!blockedUser){
-   return next(new appError('User is not found'));
+   return next(new appError('User is not found',400));
  }
  if( await checkBlock(req.user._id , user_id )){
-  return next(new appError('You can not reach this page'))
+  return next(new appError('You can not reach this page',400))
  }
   const currentUserID = req.user._id
  
@@ -40,11 +40,11 @@ async function httpCreateBlock(req ,res ,next) {
 async function httpUnBlockUser(req ,res ,next) {
   const {user_id} = req.params;
   if(req.user._id === user_id){
-    return next(new appError('You can not block your self'));
+    return next(new appError('You can not block your self',400));
   }
   const user = await FindUser({_id : user_id});
   if(!user){
-    return next(new appError('User is not found'));
+    return next(new appError('User is not found',400));
   }
   const isBlocked = await FindBlock(req.user._id.toString() ,user_id);
   if(!isBlocked) {

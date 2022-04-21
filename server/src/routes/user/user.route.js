@@ -18,7 +18,9 @@ const {
   httpFollowUser,
   httpUnFollowUser,
   httpGetMyFollowers,
-  httpGetMyFollowings
+  httpGetMyFollowings,
+  uploadUsersImages,
+  resizeUsersImages
 } = require('./user.controller');
 
 const {
@@ -34,21 +36,21 @@ userRoute.post('/forgotpassword' ,  catchAsync(httpForgotPassword));
 userRoute.patch('/resetpassword/:token' , catchAsync(httpResetPassword));
 
 userRoute.use(catchAsync(authenticate))
-userRoute.get('/me' ,  catchAsync(httpMyProfile));
-userRoute.get('/get/user/:userid' , catchAsync( httpGetSingleUser));
-userRoute.patch('/updateme' , catchAsync( httpUpdateUser));
-userRoute.patch('/update/my/password', catchAsync(httpUpdatePassword));
-userRoute.delete('/deleteme' ,  catchAsync(httpDeleteUser));
-userRoute.get('/logout' ,catchAsync( httpLogout));
+userRoute.get('/me' , authorized('user') , catchAsync(httpMyProfile));
+userRoute.get('/get/user/:userid' , authorized('user') ,catchAsync( httpGetSingleUser));
+userRoute.patch('/updateme' ,authorized('user') , uploadUsersImages, catchAsync(resizeUsersImages) ,catchAsync( httpUpdateUser));
+userRoute.patch('/update/my/password', authorized('user') ,catchAsync(httpUpdatePassword));
+userRoute.delete('/deleteme' , authorized('user') , catchAsync(httpDeleteUser));
+userRoute.get('/logout' ,authorized('user') ,catchAsync( httpLogout));
 
-userRoute.patch('/follow/:userid' ,  catchAsync(httpFollowUser));
-userRoute.patch('/unfollow/:userid' ,  catchAsync(httpUnFollowUser));
-userRoute.get('/myfollowers' ,  catchAsync(httpGetMyFollowers));
-userRoute.get('/myfollowings' ,  catchAsync(httpGetMyFollowings));
-userRoute.get('/', catchAsync( httpGetALlUsers));
-userRoute.use(authorized('admin'))
+userRoute.patch('/follow/:userid' , authorized('user') , catchAsync(httpFollowUser));
+userRoute.patch('/unfollow/:userid' , authorized('user') , catchAsync(httpUnFollowUser));
+userRoute.get('/myfollowers' , authorized('user') , catchAsync(httpGetMyFollowers));
+userRoute.get('/myfollowings' ,  authorized('user') ,catchAsync(httpGetMyFollowings));
 
-userRoute.delete('/delete/user/:userid', catchAsync(httpDeleteUserbyAdmin) )
+
+userRoute.delete('/delete/user/:userid',authorized('admin') , catchAsync(httpDeleteUserbyAdmin) )
+userRoute.get('/', authorized('admin') ,catchAsync( httpGetALlUsers));
 module.exports = userRoute;
 
 

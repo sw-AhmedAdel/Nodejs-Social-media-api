@@ -15,12 +15,13 @@ const {
 
 
 commentRoute.use(catchAsync(authenticate));
+commentRoute.use(authorized('user'))
 commentRoute.get('/get/:id' , catchAsync(httpGetSingleComment  ));
 commentRoute.post ('/comment/:postId' , catchAsync(httpCreateComment ));
 commentRoute.delete('/delete/:id' , catchAsync(httpDeleteComment ));
 commentRoute.patch('/update/:id',catchAsync(httpUpdateComment ));
 
 //commentRoute.use(authorized('admin'));
-commentRoute.get('/' , catchAsync(httpGetAllComment  ));
+//commentRoute.get('/' , catchAsync(httpGetAllComment  ));
 
 module.exports = commentRoute;

@@ -12,6 +12,7 @@ const {
 } = require('./block.controller');
 
 blockRoute.use(catchAsync(authenticate));
+blockRoute.use(authorized('user'))
 blockRoute.post('/block/:user_id', catchAsync(httpCreateBlock));
 blockRoute.delete('/unblock/:user_id', catchAsync(httpUnBlockUser));
 blockRoute.get('/', catchAsync(httpGetMyBlocks));

@@ -14,7 +14,7 @@ async function httpLikeDislikeComment (req ,res ,next){
   const {commentId} = req.params;
   const comment = await GetSingleComment({_id : commentId});
   if(!comment){
-    return next(new appError('Comment is not found'));
+    return next(new appError('Comment is not found',400));
   }
   // here comment is there so i need to check if i liked it ? if i did it i will remove it
   //if i am not ? i will add it

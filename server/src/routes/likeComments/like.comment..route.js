@@ -11,6 +11,7 @@ const {
 } = require('./like.comment.conrtoller');
 
 likeRoute.use(catchAsync(authenticate));
+likeRoute.use(authorized('user'))
 likeRoute.get('/', catchAsync(httpGetAllLikes));
 likeRoute.patch('/like/:commentId', catchAsync(httpLikeDislikeComment));
 
