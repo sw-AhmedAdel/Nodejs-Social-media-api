@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 const postSchema = new mongoose.Schema({
-
+   
+   isShared: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'Post'
+   },
+   sharedFrom:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'User'
+   }, 
     user:{
       type:mongoose.Schema.Types.ObjectId,
       required:true,

@@ -1,16 +1,13 @@
 const Post = require('./post..mongo');
 
-async function CreatePost (req) {
-  const newPost = new Post({
-    ...req.body,
-    user: req.user._id
-  });
+async function CreatePost (post) {
+  const newPost = new Post(post);
   await newPost.save();
   return newPost;
 }
 
 async function GetAllPost(filter) {
-  return await Post.find(filter)
+  return await Post.find(filter).sort('-createdAt')
 }
 
 async function GetSinglePost(filter) {

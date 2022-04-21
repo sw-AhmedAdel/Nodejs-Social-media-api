@@ -30,11 +30,11 @@ async function httpGetSinglePost (req ,res ,next) {
     _id: id
   })
   if(!post) {
-    return next(new appError ('post is not extis'));
+    return next(new appError ('post is not extis' ,400));
   }
 
   if( await checkBlock(post.user , req.user._id )){
-    return next(new appError('You can not reach this page'))
+    return next(new appError('You can not reach this page',400))
    }
 
   return res.status(200).json({
@@ -46,7 +46,11 @@ async function httpGetSinglePost (req ,res ,next) {
 
 
 async function httpCreatePost (req ,res ,next) {
-  const post = await CreatePost(req);
+  const getPost= {
+    ...req.body,
+    user: req.user._id
+  } 
+  const post = await CreatePost(getPost);
   return res.status(201).json({
     status:'success',
     post
@@ -58,7 +62,7 @@ async function httpUpdatePost (req ,res ,next) {
   const {id} = req.params;
   let post = await GetSinglePost({_id : id});
   if(!post) {
-    return next(new appError ('post is not extis')); 
+    return next(new appError ('post is not extis',400)); 
   } 
   const user = await FindUser({
     _id : id,
@@ -80,7 +84,7 @@ async function httpDeletePost (req ,res ,next) {
   const {id} = req.params;
   const post = await GetSinglePost({_id : id});
   if(!post) {
-    return next(new appError ('post is not extis')); 
+    return next(new appError ('post is not extis',400)); 
   }
  
   if(!checkPermessions(req.user , post.user)){
@@ -107,7 +111,7 @@ async function httpLikeDislikePost(req ,res ,next){
   let message;
   const post = await GetSinglePost({_id: id});
   if(!post){
-    return next(new appError('Post is not exits'));
+    return next(new appError('Post is not exits',400));
   }
 
   if(!post.likes.includes(req.user._id)) {
@@ -146,6 +150,42 @@ async function httpGetMyPostsAndMyfollowingsPost(req ,res ,next){
   })
 }
 
+
+async function httpGetMyPosts (req ,res ,next) {
+  const user = req.user;
+  const myPosts= await GetAllPost({user : user._id });
+  return res.status(200).json({
+    status:'success',
+    results:myPosts.length,
+    data:myPosts,
+  })
+}
+
+async function httpSharePost (req ,res ,next) {
+  const {postId} = req.params;
+  let post = await GetSinglePost({_id :postId });
+  if(!post){
+    return next(new appError('Post is not found',400))
+  }
+
+  if( await checkBlock(post.user , req.user._id )){
+    return next(new appError('You can not reach this page',400))
+   }
+   const newPost = {
+    isShared: post._id,
+    sharedFrom:post.user,
+    desc:post.desc,
+    image:post.image,
+    user: req.user._id
+   }
+   post = await CreatePost(newPost);
+   return res.status(201).json({
+     status:'Shared post',
+     data:post
+   })
+
+}
+
 module.exports = {
   httpCreatePost,
   httpDeletePost,
@@ -154,4 +194,6 @@ module.exports = {
   httpUpdatePost,
   httpLikeDislikePost,
   httpGetMyPostsAndMyfollowingsPost,
+  httpGetMyPosts,
+  httpSharePost
 }
