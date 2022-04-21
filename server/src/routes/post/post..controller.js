@@ -12,6 +12,8 @@ const {checkPermessions} = require('../../services/query')
 const {GetAllComment} = require('../../models/comment.models');
 const {DeleteManyLikes}= require('../../models/like.comment.models');
 const {DeleteManycomments} = require('../../models/comment.models');
+const {checkBlock} =require('../../models/block.models')
+
 
 async function httpGetAllPost (req ,res ,next) {
   const posts = await GetAllPost();
@@ -30,6 +32,11 @@ async function httpGetSinglePost (req ,res ,next) {
   if(!post) {
     return next(new appError ('post is not extis'));
   }
+
+  if( await checkBlock(post.user , req.user._id )){
+    return next(new appError('You can not reach this page'))
+   }
+
   return res.status(200).json({
     status:'success',
     post
